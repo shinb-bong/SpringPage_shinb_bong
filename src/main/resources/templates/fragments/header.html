@@ -1,0 +1,63 @@
+<!-- src/main/resources/templates/fragments/header.html-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+
+<th:block layout:fragment="css">
+    <link th:href="@{/css/header.css}" type="text/css" rel="stylesheet">
+</th:block>
+
+<div th:fragment="header" >
+  <!-- Navigation-->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" >
+    <div class="container px-4 px-lg-5" >
+      <span>
+          <a class="navbar-brand" href="/">
+              <img src="/assets/img/homePageLogo.png" style="width: 50px; padding-bottom: 4px;">
+              <b style="font-size: 20px; color:#4682b4; text-shadow: -1px 0 #0D0D0D, 0 1px #0D0D0D, 1px 0 #0D0D0D, 0 -1px #0D0D0D; margin-right: 4px">어서오세요</b>
+              <b style="font-size: 20px; color:#7b68ee ; text-shadow: -1px 0 #0D0D0D, 0 1px #0D0D0D, 1px 0 #0D0D0D, 0 -1px #0D0D0D;" >봉규의 사이트입니다.</b>
+          </a>
+      </span>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+          <li class="nav-item">
+            <a class="nav-link" href="/contexts">전체 게시물</a>
+          </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <a class="nav-link" href="/contexts/new">게시물 작성</a>
+            </li>
+          <li class="nav-item" sec:authorize="isAuthenticated()">
+            <a class="nav-link" href="/contexts/myList">내 게시물</a>
+          </li>
+          <li class="nav-item" sec:authorize="isAnonymous()">
+            <a class="nav-link" href="/members/login">로그인</a>
+          </li>
+          <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">내 정보</button>
+            <ul class="dropdown-menu">
+                <li><p class="dropdown-item" th:text="|${#authentication.name}로 로그인하셨습니다.|">로그아웃</p></li>
+                <hr/>
+                <li><a class="dropdown-item" href="/members/logout">로그아웃</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header-->
+  <div class="bg-dark py-5" th:style="'background-image:url('+ @{/assets/img/homePageJumbotron.png} +'); background-position: 40% 42%; background-size:cover;'" >
+    <div class="container px-4 px-lg-5 my-5" >
+      <div class="text-center text-white">
+        <h1 class="display-4 fw-bolder">Spring + Thymeleaf</h1>
+        <p class="lead fw-normal text-white-50 mb-0">개발중입니다.</p>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+</html>

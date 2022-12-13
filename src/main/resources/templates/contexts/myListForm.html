@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layouts/mainLayout}">
+
+<body>
+<div layout:fragment="content">
+    <div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>제목</th>
+                <th>작성자</th>
+                <th>내용</th>
+                <th>카테고리</th>
+                <th>작성일시</th>
+                <th>조회수</th>
+                <th>수정/삭제</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="mine : ${myList}">
+                <td th:text="${mine.id}"></td>
+                <td th:text="${mine.title}"></td>
+                <td th:text="${mine.member.name}"></td>
+                <td th:text="${mine.content}"></td>
+                <td th:text="${mine.contextCategory}"></td>
+                <td th:text="${#temporals.format(mine.createdDate, 'yyyy-MM-dd')}"></td>
+                <td th:text="${mine.viewCount}"></td>
+                <td> <a th:href="@{/contexts/edit/{id}(id=${mine.id})}">
+                    <button type="button" class="btn btn-outline-dark"
+                            th:if="${#authentication.name} == ${mine.member.email}"
+                            onclick="location.href='/contexts/edit'">수정/삭제</button>
+                </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+</body>
+</html>

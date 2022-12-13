@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/mainLayout}">
+
+<!-- 사용자 CSS 추가 -->
+<th:block layout:fragment="css">
+    <style>
+        .fieldError {
+            color: #bd2130;
+        }
+    </style>
+</th:block>
+
+<!-- 사용자 스크립트 추가-->
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        $(document).ready(function(){
+            var errorMessage = [[${errorMessage}]];
+            if(errorMessage != null){
+                alert(errorMessage);
+            }
+        });
+    </script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script>
+        function findAddr() {
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+                    // 각 주소의 노출 규칙에 따라 주소를 조합한다.
+                    // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+                    var addr = ''; // 주소 변수
+                    var extraAddr = ''; // 참고항목 변수
+
+                    //사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+                    if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+                        addr = data.roadAddress;
+                    } else { // 사용자가 지번 주소를 선택했을 경우(J)
+                        addr = data.jibunAddress;
+                    }
+
+                    // 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
+                    if(data.userSelectedType === 'R'){
+                        // 법정동명이 있을 경우 추가한다. (법정리는 제외)
+                        // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
+                        if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+                            extraAddr += data.bname;
+                        }
+                        // 건물명이 있고, 공동주택일 경우 추가한다.
+                        if(data.buildingName !== '' && data.apartment === 'Y'){
+                            extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                        }
+                        // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
+                        if(extraAddr !== ''){
+                            extraAddr = ' (' + extraAddr + ')';
+                        }
+                        // 조합된 참고항목을 해당 필드에 넣는다.
+                        document.getElementById("street").value = extraAddr;
+
+                    } else {
+                        document.getElementById("street").value = '';
+                    }
+
+                    // 우편번호와 주소 정보를 해당 필드에 넣는다.
+                    document.getElementById('zipcode').value = data.zonecode;
+                    document.getElementById("city").value = addr;
+                    // 커서를 상세주소 필드로 이동한다.
+                    document.getElementById("city").focus();
+                }
+            }).open();
+        }
+    </script>
+</th:block>
+
+<div layout:fragment="content">
+    <form action="/members/new" role="form" method="post"  th:object="${memberFormDto}">
+        <div class="form-group py-2">
+            <label th:for="email">이메일</label>
+            <input type="email" th:field="*{email}" class="form-control" placeholder="이메일을 입력해주세요">
+            <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="fieldError">Incorrect data</p>
+        </div>
+        <div class="form-group py-2">
+            <label th:for="password">비밀번호</label>
+            <input type="password" th:field="*{password}" class="form-control" placeholder="비밀번호 입력">
+            <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="fieldError">Incorrect data</p>
+        </div>
+        <div class="form-group py-2">
+            <label th:for="vaildPassword">비밀번호 확인</label>
+            <input type="password" th:field="*{validPassword}" class="form-control" placeholder="비밀번호 확인 입력">
+            <p th:if="${#fields.hasErrors('validPassword')}" th:errors="*{validPassword}" class="fieldError">Incorrect data</p>
+        </div>
+        <div class="form-group py-1">
+            <label th:for="name">이름</label>
+            <input type="text" th:field="*{name}" class="form-control" placeholder="이름을 입력해주세요">
+            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="fieldError">Incorrect data</p>
+        </div>
+
+        <select id="gender" class="custom-select d-block w-100 rounded-0" th:field="*{gender}">
+            <option value="">성별 선택</option>
+            <option th:each="genderOp : ${T(jpa.sideStudy.domain.member.Gender).values()}" th:value="${genderOp}" th:text="${genderOp}"></option>
+        </select>
+
+
+        </br>
+        <label th:for="city">주소</label><input type="button" onclick="findAddr()" value="우편번호 찾기"><br>
+        <div class="form-group py-2">
+            <input type="text" th:field="*{zipcode}" class="form-control" placeholder="우편번호 찾기를 눌러주세요." disabled>
+            <p th:if="${#fields.hasErrors('zipcode')}" th:errors="*{zipcode}" class="fieldError">Incorrect data</p>
+        </div>
+        <div class="form-group py-2">
+            <input type="text" th:field="*{city}" class="form-control" placeholder="주소를 입력해주세요" disabled>
+            <p th:if="${#fields.hasErrors('city')}" th:errors="*{city}" class="fieldError">Incorrect data</p>
+        </div>
+        <div class="form-group py-2">
+            <input type="text" th:field="*{street}" class="form-control" placeholder="상세주소를 입력해주세요">
+            <p th:if="${#fields.hasErrors('street')}" th:errors="*{street}" class="fieldError">Incorrect data</p>
+        </div>
+        <div style="text-align:center" class="py-3">
+            <button type="submit" class="btn btn-outline-dark">Submit</button>
+            <button type="button" class="btn btn-outline-dark" onclick="history.back();">Cancel</button>
+        </div>
+        <input type="hidden" th:name="_csrf" th:value="_csrf.token"/>
+    </form>
+
+</div>
+
+</html>
