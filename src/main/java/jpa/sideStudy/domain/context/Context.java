@@ -3,10 +3,13 @@ package jpa.sideStudy.domain.context;
 import jpa.sideStudy.controller.context.ContextEditFormDto;
 import jpa.sideStudy.controller.context.ContextFormDto;
 import jpa.sideStudy.domain.base.BaseEntity;
+import jpa.sideStudy.domain.comment.Comment;
 import jpa.sideStudy.domain.member.Member;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @ToString
 @AllArgsConstructor
@@ -23,13 +26,21 @@ public class Context extends BaseEntity {
     private String title;
     private String content;
     private int viewCount;
+    private Long imgId; // 저장된 이미지 id
 
     @Enumerated(EnumType.STRING)
     private ContextCategory contextCategory;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
-    private Long imgId;
+
+    // 양방향 연결
+    @OneToMany(mappedBy = "contexts", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OrderBy("id asc") // 댓글 정렬
+    private List<Comment> comments = new ArrayList<>() ;
+
+
+
 
 //    /**
 //     * 전체화면에서도 좋아요 수 노출을 위해

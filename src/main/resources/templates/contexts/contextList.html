@@ -4,6 +4,19 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/mainLayout}">
 
+<th:block layout:fragment="script">
+    <script>
+        function page() {
+            var form = document.createElement("form");
+            form.setAttribute("method", "get");
+            form.setAttribute("action", "/contexts?page=1&order=true");
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+</th:block>
+
+
 <body>
 <div layout:fragment="content">
     <div class="container">
@@ -33,7 +46,7 @@
                     <input type="text" th:field="*{findText}" class="form-control" placeholder="찾을 단어 입력"/>
                 </div>
                 <button type="submit" class="btn btn-primary mb-3 m-2">검색</button>
-
+                <a class="btn btn-primary mb-2" th:href="@{/contexts(cond=${param.cond}, contextCategory=${param.contextCategory}, findText=${param.findText}, orderby = 'viewCount' )}">조회수 순</a>
                 <div style="text-align:center" class="mx-sm-1 mb-2">
                     <button type="button" class="btn btn-outline-dark"
                             sec:authorize="isAuthenticated()"

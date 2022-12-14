@@ -16,4 +16,5 @@ public class ContextSearchDto {
 
     // 카테고리 찾기
     private ContextCategory contextCategory;
+
 }

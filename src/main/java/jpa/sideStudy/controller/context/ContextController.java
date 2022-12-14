@@ -48,9 +48,10 @@ public class ContextController {
      */
     @GetMapping()
     public String contextList(@PageableDefault Pageable pageable,
-                                  @RequestParam(name = "order",required = false) Boolean boolOrder,
-                                  @ModelAttribute("contextSearchDto") ContextSearchDto contextSearchDto, Model model){
-        Page<Context> findContext = contextService.findAll(contextSearchDto, pageable);
+                                  @ModelAttribute("contextSearchDto") ContextSearchDto contextSearchDto,
+                              @RequestParam(required = false, defaultValue = "createdDate", name = "orderby") String orderCriteria,
+                              Model model){
+        Page<Context> findContext = contextService.findAll(contextSearchDto, pageable, orderCriteria);
         log.info("findContext.number={}",findContext.getContent());
         model.addAttribute("contextList",findContext);
         return "contexts/contextList";
