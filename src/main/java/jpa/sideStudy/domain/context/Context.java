@@ -29,7 +29,6 @@ public class Context extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
-
     private Long imgId;
 
 //    /**
@@ -47,8 +46,6 @@ public class Context extends BaseEntity {
         this.member = member;
         this.imgId = imgId;
     }
-
-
 
     /**
      * 좋아요 수도 자동 생성 시켜야함.
@@ -76,4 +73,5 @@ public class Context extends BaseEntity {
     public void updateViewCount(int newViewCount) {
         this.viewCount = newViewCount;
     }
+
 }

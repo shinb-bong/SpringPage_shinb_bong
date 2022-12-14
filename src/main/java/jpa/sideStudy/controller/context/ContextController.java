@@ -13,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,10 +47,11 @@ public class ContextController {
      * 총 3개씩 2줄 출력
      */
     @GetMapping()
-    public String contextList(@RequestParam(name = "offset",defaultValue = "0",required = false) Long offset,
-                                  @RequestParam(name = "limit" ,defaultValue = "6",required = false) Long limit,
+    public String contextList(@PageableDefault Pageable pageable,
+                                  @RequestParam(name = "order",required = false) Boolean boolOrder,
                                   @ModelAttribute("contextSearchDto") ContextSearchDto contextSearchDto, Model model){
-        List<Context> findContext = contextService.findAll(contextSearchDto,offset,limit);
+        Page<Context> findContext = contextService.findAll(contextSearchDto, pageable);
+        log.info("findContext.number={}",findContext.getContent());
         model.addAttribute("contextList",findContext);
         return "contexts/contextList";
     }

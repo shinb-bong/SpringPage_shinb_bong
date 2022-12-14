@@ -11,6 +11,8 @@ import jpa.sideStudy.domain.context.QContext;
 import jpa.sideStudy.domain.member.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.thymeleaf.util.StringUtils;
 
@@ -22,15 +24,18 @@ import java.util.List;
 public class ContextQueryRepository {
     private final JPAQueryFactory queryFactory;
     QContext context = QContext.context;
-    public List<Context> findAll(ContextSearchDto contextSearchDto,Long offset, Long limit){
+    public Page<Context> findAll(ContextSearchDto contextSearchDto, Pageable pageable) {
         QueryResults<Context> results = queryFactory.selectFrom(context)
-                .where(likeContext(contextSearchDto.getCond(),contextSearchDto.getFindText())
-                    ,likeCategory(contextSearchDto.getContextCategory())
-                        )
-                .offset(offset)
-                .limit(limit)
+                .where(likeContext(contextSearchDto.getCond(), contextSearchDto.getFindText())
+                        , likeCategory(contextSearchDto.getContextCategory())
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetchResults();
-        return results.getResults();
+
+        List<Context> content = results.getResults();
+        long total = results.getTotal();
+        return new PageImpl<>(content,pageable,total);
     }
 
 
