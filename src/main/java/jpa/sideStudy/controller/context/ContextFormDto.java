@@ -22,4 +22,5 @@ public class ContextFormDto {
     private String content;
 
     private ContextCategory contextCategory;
+    private Long imgId;
 }

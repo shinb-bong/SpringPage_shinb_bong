@@ -4,13 +4,32 @@
       layout:decorate="~{layouts/mainLayout}">
 
 <body>
+<th:block layout:fragment="script">
+    <script>
+        function cancel(id) {
+            var form = document.createElement("form");
+            form.setAttribute("method", "post");
+            form.setAttribute("action", "/contexts/" + id + "/delete");
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+</th:block>
 
 <div layout:fragment="content">
-    <form action="/contexts/edit/" th:action="@{/contexts/edit/{id}(id=${contextEditFormDto.id})}" role="form" method="put"  th:object="${contextEditFormDto}">
+    <form action="/contexts/edit/" th:action="@{/contexts/edit/{id}(id=${contextEditFormDto.id})}" role="form" method="post"  th:object="${contextEditFormDto}">
+        <div th:if="*{imgId}" class="input-group mb-3">
+            <div class="input-group-prepend">
+                <label class="input-group-text" th:for="imgId">등록된 사진</label>
+            </div>
+            <img  th:src="|/contexts/images/*{imgId}|" th:field="*{imgId}" width="150" height="150" class="pl-3 mb-3 mt-3">
+        </div>
+<!--        <input type="file" name="file" class="mr-4 mb-2">-->
         <div class="input-group mb-3">
             <div class="input-group-prepend">
                 <label class="input-group-text" th:for="title">제목</label>
             </div>
+            <input type="hidden" th:field="*{id}" />
             <input type="text" class="form-control" placeholder="제목을 입력해주세요." aria-describedby="basic-addon1" th:field="*{title}">
             <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="fieldError">Incorrect data</p>
         </div>
@@ -32,27 +51,20 @@
             <textarea class="form-control" aria-label="Large" placeholder="상관 없는 내용을 작성하는것을 삼가해주세요!" th:field= "*{content}"></textarea>
             <p th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="fieldError">Incorrect data</p>
         </div>
-        <h4>조회수 <span class="badge badge-secondary" th:text="*{viewCount}">New</span></h4>
+        <h4>조회수 <span class="badge badge-secondary" th:text="${viewCount}">New</span></h4>
 
         <div style="text-align:center" class="py-3">
             <button type="submit" class="btn btn-outline-dark">수정하기</button>
             <a href="javascript:history.back();" >
                 <button type="button" class="btn btn-outline-dark" onclick="location.href='/contexts/'">뒤로 가기</button>
+
                 <a href="#"
-                   th:href="'javascript:cancel('+${contextEditFormDto.id}+')'"
+                   th:href="'javascript:cancel('+${contextEditFormDto.id}+');'"
                    class="btn btn-danger">삭제하기</a>
             </a>
         </div>
     </form>
 </div>
 </body>
-<script>
-    function cancel(id) {
-        var form = document.createElement("form");
-        form.setAttribute("method", "post");
-        form.setAttribute("action", "/contexts/" + id + "/delete");
-        document.body.appendChild(form);
-        form.submit();
-    }
-</script>
+
 </html>

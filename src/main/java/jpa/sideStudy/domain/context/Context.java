@@ -30,6 +30,8 @@ public class Context extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
+    private Long imgId;
+
 //    /**
 //     * 전체화면에서도 좋아요 수 노출을 위해
 //     */
@@ -37,12 +39,13 @@ public class Context extends BaseEntity {
 //    Set<Likes> likes = new HashSet<>();
 
     @Builder
-    public Context(String title, String content, int viewCount, ContextCategory contextCategory, Member member) {
+    public Context(String title, String content, int viewCount, ContextCategory contextCategory, Member member,Long imgId) {
         this.title = title;
         this.content = content;
         this.viewCount = viewCount;
         this.contextCategory = contextCategory;
         this.member = member;
+        this.imgId = imgId;
     }
 
 
@@ -56,6 +59,7 @@ public class Context extends BaseEntity {
                 .content(contextFormDto.getContent())
                 .viewCount(0)
                 .contextCategory(contextFormDto.getContextCategory())
+                .imgId(contextFormDto.getImgId())
                 .member(member)
                 .build();
         return writeContext;
@@ -65,7 +69,7 @@ public class Context extends BaseEntity {
         this.title = contextEditFormDto.getTitle();
         this.content = contextEditFormDto.getContent();
         this.contextCategory = contextEditFormDto.getContextCategory();
-
+        this.imgId = contextEditFormDto.getImgId();
         return this.getId();
     }
 

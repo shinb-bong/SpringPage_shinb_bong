@@ -21,7 +21,6 @@ import java.util.List;
 public class ContextService {
     private final ContextRepository contextRepository;
     private final ContextQueryRepository contextQueryRepository;
-
     /**
      * 글 저장
      */

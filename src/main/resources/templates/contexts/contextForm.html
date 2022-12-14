@@ -6,7 +6,7 @@
 <body>
 
 <div layout:fragment="content">
-    <form action="/contexts/new" role="form" method="post"  th:object="${contextFormDto}">
+    <form action="/contexts/new" role="form" method="post" enctype="multipart/form-data" th:object="${contextFormDto}">
         <div class="input-group mb-3">
             <div class="input-group-prepend">
                 <label class="input-group-text" th:for="title">제목</label>
@@ -33,6 +33,8 @@
             <p th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="fieldError">Incorrect data</p>
         </div>
 
+        <h4>파일 업로드</h4>
+        <input type="file" name="file">
         <div style="text-align:center" class="py-3">
             <button type="submit" class="btn btn-outline-dark">등록하기</button>
             <button type="button" class="btn btn-outline-dark" onclick="location.href='/contexts/'">글 목록으로 가기</button>

@@ -3,13 +3,16 @@ package jpa.sideStudy.controller.context;
 import jpa.sideStudy.config.AuthUser;
 import jpa.sideStudy.config.MemberAdapter;
 import jpa.sideStudy.domain.context.Context;
+import jpa.sideStudy.domain.file.FileEntity;
 import jpa.sideStudy.domain.member.Member;
 import jpa.sideStudy.repository.context.ContextRepository;
+import jpa.sideStudy.repository.file.FileRepository;
 import jpa.sideStudy.service.context.ContextService;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import jpa.sideStudy.service.file.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,10 +21,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,6 +35,9 @@ import java.util.List;
 @Slf4j
 public class ContextController {
     private final ContextService contextService;
+    private final ContextRepository contextRepository;
+    private final FileService fileService;
+    private final FileRepository fileRepository;
 
     /**
      * 목록 조회
@@ -47,7 +56,9 @@ public class ContextController {
      * 글 작성폼
      */
     @GetMapping("/new")
-    public String contextForm(@AuthenticationPrincipal MemberAdapter memberAdapter, Model model){
+    public String contextForm(@AuthenticationPrincipal MemberAdapter memberAdapter,
+                              Model model){
+
         model.addAttribute("contextFormDto", ContextFormDto.builder().build());
         if(memberAdapter != null){
             log.info("loginMember{}",memberAdapter.getMember());
@@ -59,6 +70,7 @@ public class ContextController {
      */
     @PostMapping("/new")
     public String uploadContext(@Valid ContextFormDto contextFormDto, BindingResult bindingResult,
+                                @RequestParam("file") MultipartFile file,
                                 @AuthUser Member member, Model model){
 
         if(bindingResult.hasErrors()){
@@ -66,6 +78,10 @@ public class ContextController {
             return "contexts/contextForm";
         }
         try{
+            Long savedImgId = fileService.saveFile(file);
+            if(savedImgId!=null){
+                contextFormDto.setImgId(savedImgId);
+            }
             contextService.write(contextFormDto, member);
         } catch (UsernameNotFoundException e){
             log.info("exception:{}",e.getMessage());
@@ -81,28 +97,34 @@ public class ContextController {
     @GetMapping("/edit/{id}")
     public String editForm(Model model, @PathVariable("id") Long id){
         Context findContext = contextService.findOne(id);
+
         ContextEditFormDto contextEditFormDto = ContextEditFormDto.builder()
                 .id(id)
                 .title(findContext.getTitle())
                 .content(findContext.getContent())
-                .viewCount(findContext.getViewCount())
                 .contextCategory(findContext.getContextCategory())
+                .imgId(findContext.getImgId())
                 .build();
         model.addAttribute("contextEditFormDto",contextEditFormDto);
+        model.addAttribute("viewCount",findContext.getViewCount());
         return "contexts/contextEditForm";
     }
 
     @PreAuthorize("isAuthenticated() and (( #context.member.name == principal.name ) or hasRole('ROLE_ADMIN') )")
-    @PutMapping("/edit/{id}")
-    public String edit(ContextEditFormDto contextEditFormDto, BindingResult bindingResult,
-                       @PathVariable Long contextId, RedirectAttributes redirectAttributes,Model model){
+    @PostMapping("/edit/{id}")
+    public String edit(@Valid ContextEditFormDto contextEditFormDto,
+                       BindingResult bindingResult,
+                       @PathVariable("id") Long contextId,
+                       RedirectAttributes redirectAttributes,Model model){
+
         if(bindingResult.hasErrors()){
+            log.info("error edit: {}",bindingResult.getAllErrors());
             return "contexts/contextEditForm";
         }
         try {
             contextService.edit(contextId, contextEditFormDto);
         }catch (Exception e){
-            e.printStackTrace();
+            log.info("error edit: {}",e.getMessage());
         }
         redirectAttributes.addAttribute("id",contextId);
         return "redirect:/contexts/{id}";
@@ -115,17 +137,17 @@ public class ContextController {
     public String detail(Model model, @PathVariable("id") Long id){
         Context findContext = contextService.findOne(id);
         int newViewCount = findContext.getViewCount()+1;
-
         contextService.updateVisit(id,newViewCount);
         model.addAttribute("findContext",findContext);
         return "contexts/detailForm";
     }
 
+
     @PostAuthorize("isAuthenticated() and ((returnObject.name ==  principal.username )or hasRole('ROLE_ADMIN'))")
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable("id") Long id, Model model){
         contextService.delete(id);
-        return "redirect:/contexts/contextList";
+        return "redirect:/contexts/";
     }
 
     /**
@@ -141,6 +163,16 @@ public class ContextController {
         model.addAttribute("id",member.getEmail());
         model.addAttribute("myList",myList);
         return "contexts/myListForm";
+    }
+
+    /**
+     * 이미지 출력
+     */
+    @GetMapping("/images/{fileId}")
+    @ResponseBody
+    public Resource downloadImage(@PathVariable("fileId") Long id, Model model) throws IOException{
+        FileEntity file = fileRepository.findById(id).orElse(null);
+        return new UrlResource("file:" + file.getSavedPath());
     }
 
 

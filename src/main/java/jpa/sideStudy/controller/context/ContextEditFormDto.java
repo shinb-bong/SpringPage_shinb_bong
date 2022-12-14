@@ -9,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 @Builder
 public class ContextEditFormDto {
+
     private Long id;
 
     @NotBlank(message = "제목은 작성해주셔아합니다.")
@@ -19,5 +20,5 @@ public class ContextEditFormDto {
 
     private ContextCategory contextCategory;
 
-    private int viewCount;
+    private Long imgId;
 }
