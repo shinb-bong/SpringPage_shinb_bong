@@ -10,11 +10,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/api")
 public class LikeApiController {
 
     private  final LikesService likesService;
@@ -25,9 +27,8 @@ public class LikeApiController {
             @PathVariable(name = "contextId") Long contextId){
         boolean result = false;
         if( member != null){
-            result = likesService.addLike(member.getId(),contextId);
+            result = likesService.addRemoveLike(member.getId(),contextId);
         }
-
         return result ?
                 new ResponseEntity<>(HttpStatus.OK)
                 : new ResponseEntity<>(HttpStatus.BAD_REQUEST);

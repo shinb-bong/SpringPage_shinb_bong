@@ -54,6 +54,42 @@
                 }
             });
         }
+
+        /**
+         * 좋아요 버튼
+         */
+        function addLike(id) {
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
+            var url = "/api/like/" + id ;
+            $.ajax({
+                url      : url,
+                type     : "POST",
+                contentType : "application/json",
+                beforeSend : function(xhr){
+                    /* 데이터를 전송하기 전에 헤더에 csrf값을 설정 */
+                    xhr.setRequestHeader(header, token);
+                },
+                dataType : "text",
+                cache   : false,
+                success  : function(result, status){
+                    location.href='/contexts/' + id;
+                    alert("완료");
+                },
+                error : function(jqXHR, status, error){
+                    if(jqXHR.status == '401'){
+                        alert('로그인 후 이용해주세요');
+                        location.href='/members/login';
+                    } else if(jqXHR.status == "400"){
+                        alert('중복 좋아요는 안됩니다 ㅠ');
+                    }
+                    else{
+                        alert(jqXHR.responseText);
+                    }
+                }
+            });
+        }
     </script>
 
 </th:block>
@@ -70,6 +106,8 @@
                 <th>카테고리</th>
                 <th>작성일시</th>
                 <th>조회수</th>
+<!--                <th>좋아요 수</th>-->
+                <th>좋아요</th>
                 <th th:if="${#authentication.name} == ${findContext.writerEmail}">수정/삭제</th>
             </tr>
             </thead>
@@ -83,11 +121,15 @@
                 <td th:text="${findContext.contextCategory}"></td>
                 <td th:text="${#temporals.format(findContext.createdDate, 'yyyy-MM-dd')}"></td>
                 <td th:text="${findContext.viewCount}"></td>
-                <td> <a th:href="@{/contexts/edit/{id}(id=${findContext.id})}">
-                    <button type="button" class="btn btn-outline-dark"
-                            th:if="${#authentication.name} == ${findContext.writerEmail}"
-                            onclick="location.href='/contexts/edit'">수정/삭제</button>
-                </a>
+<!--                <td th:text="${findContext.likesCount}"></td>-->
+                <td>
+                    <button type="button" class="btn btn-outline-danger bi bi-pencil-square" th:value="${findContext.id}" onclick="addLike(this.value)" th:text="${findContext.likesCount}">좋아요 버튼</button>
+                </td>
+                <td th:if="${#authentication.name} == ${findContext.writerEmail}">
+                    <a th:href="@{/contexts/edit/{id}(id=${findContext.id})}">
+                        <button type="button" class="btn btn-outline-dark"
+                                onclick="location.href='/contexts/edit'">수정/삭제</button>
+                     </a>
                 </td>
             </tr>
             </tbody>

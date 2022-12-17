@@ -25,7 +25,7 @@ public class ContextDetailDto {
     private String  writerEmail;
     private List<CommentResponseDto> comments;
 
-    private Set<Likes> likes = new HashSet<>();
+    private int likesCount;
 
     public ContextDetailDto(Context contexts){
         this.id = contexts.getId();
@@ -39,7 +39,7 @@ public class ContextDetailDto {
         this.modifiedDate= contexts.getLastModifiedDate();
         this.writerEmail=contexts.getMember().getEmail();
         this.comments= contexts.getComments().stream().map(CommentResponseDto::new).collect(Collectors.toList());
-        this.likes = contexts.getLikes();
+        this.likesCount = contexts.getLikes().size();
 
     }
 }

@@ -77,11 +77,9 @@ public class ContextService {
      * 조회수 증가
      */
     @Transactional
-    public void updateVisit(Long id, int newViewCount) {
-        Context context = contextRepository.findById(id).orElseThrow(
-                () -> new IllegalStateException("해당 게시물이 없습니다.")
-        );
-        context.updateViewCount(newViewCount);
+    public void updateViewCount(Long id) {
+        this.contextRepository.updateView(id);
+
     }
 
     public List<Context> findMyList(Member member) {

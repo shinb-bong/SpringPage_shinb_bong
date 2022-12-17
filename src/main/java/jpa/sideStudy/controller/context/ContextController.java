@@ -28,6 +28,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
@@ -140,7 +143,10 @@ public class ContextController {
      * 상세페이지
      */
     @GetMapping("/{id}")
-    public String detail(Model model, @PathVariable("id") Long id,@AuthUser Member member){
+    public String detail(Model model, @PathVariable("id") Long id, @AuthUser Member member,
+                         HttpServletRequest request,
+                         HttpServletResponse response){
+        viewCountUp(id, request, response);
         Context findContext = contextService.findOne(id);
         ContextDetailDto dto = new ContextDetailDto(findContext);
         List<CommentResponseDto> comments = dto.getComments();
@@ -148,11 +154,36 @@ public class ContextController {
             model.addAttribute("comments",comments);
         }
 
-
-        int newViewCount = findContext.getViewCount()+1;
-        contextService.updateVisit(id,newViewCount);
         model.addAttribute("findContext",dto);
         return "contexts/detailForm";
+    }
+
+    private void viewCountUp(Long id, HttpServletRequest request, HttpServletResponse response) {
+        Cookie oldCookie = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("postView")) {
+                    oldCookie = cookie;
+                }
+            }
+        }
+
+        if (oldCookie != null) {
+            if (!oldCookie.getValue().contains("[" + id.toString() + "]")) {
+                contextService.updateViewCount(id);
+                oldCookie.setValue(oldCookie.getValue() + "_[" + id + "]");
+                oldCookie.setPath("/");
+                oldCookie.setMaxAge(60 * 60 * 24);
+                response.addCookie(oldCookie);
+            }
+        } else {
+            contextService.updateViewCount(id);
+            Cookie newCookie = new Cookie("postView","[" + id + "]");
+            newCookie.setPath("/");
+            newCookie.setMaxAge(60 * 60 * 24);
+            response.addCookie(newCookie);
+        }
     }
 
 

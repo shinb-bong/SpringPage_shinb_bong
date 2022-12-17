@@ -15,6 +15,8 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,7 +35,7 @@ class LikeApiControllerTest {
     MockMvc mockMvc;
     @Autowired ContextRepository contextRepository;
     /**
-     * 좋아요 API 테스트 Post = /like/{contextId}
+     * 좋아요 API 테스트 Post = /api/like/{contextId}
      */
     @DisplayName("좋아요 테스트")
     @WithUserDetails(userDetailsServiceBeanName = "memberService",value = "test@naver.com")
@@ -41,7 +43,7 @@ class LikeApiControllerTest {
     void testCreateLike() throws Exception {
         Context context = addContexts();
 
-        mockMvc.perform(post("/like/" + context.getId()))
+        mockMvc.perform(post("/api/like/" + context.getId()))
                 .andExpect(status().isOk());
 
         Likes like = likesRepository.findAll().get(0);
@@ -51,20 +53,20 @@ class LikeApiControllerTest {
         Assertions.assertNotNull(like.getContext().getId());
     }
 
-    @DisplayName("좋아요 중복 테스트  - fail")
+    @DisplayName("좋아요 중복 취소 테스트  - fail")
     @WithUserDetails(userDetailsServiceBeanName = "memberService",value = "test@naver.com")
     @Test
     void testDuplicateLike() throws Exception {
         Context context = addContexts();
-        mockMvc.perform(post("/like/" + context.getId()))
+        mockMvc.perform(post("/api/like/" + context.getId()))
                 .andExpect(status().isOk());
-        mockMvc.perform(post("/like/" + context.getId()))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/api/like/" + context.getId()))
+                .andExpect(status().isOk());
 
-        Likes like = likesRepository.findAll().get(0);
-        assertNotNull(like);
-        assertNotNull(like.getMember().getId());
-        assertNotNull(like.getMember().getId());
+        List<Likes> all = likesRepository.findAll();
+        // 취소가 되어서 사라져야함.
+        assertTrue(all.isEmpty());
+
     }
 
     private Context addContexts() {

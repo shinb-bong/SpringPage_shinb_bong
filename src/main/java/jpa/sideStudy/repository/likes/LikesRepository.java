@@ -13,4 +13,5 @@ public interface LikesRepository extends JpaRepository<Likes,Long> {
 
     Optional<Likes> findByMemberAndContext(Member member, Context context);
 
+
 }

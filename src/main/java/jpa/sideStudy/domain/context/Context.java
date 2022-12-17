@@ -27,6 +27,7 @@ public class Context extends BaseEntity {
     // 게시물 제목, 내용, 게시물 본 수
     private String title;
     private String content;
+
     private int viewCount;
     private Long imgId; // 저장된 이미지 id
 
@@ -48,7 +49,6 @@ public class Context extends BaseEntity {
      */
     @OneToMany(mappedBy = "context", cascade = CascadeType.ALL)
     Set<Likes> likes = new HashSet<>();
-
 
     @Builder
     public Context(String title, String content, int viewCount, ContextCategory contextCategory, Member member,Long imgId) {
