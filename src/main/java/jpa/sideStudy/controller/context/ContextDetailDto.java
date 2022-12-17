@@ -3,10 +3,13 @@ package jpa.sideStudy.controller.context;
 import jpa.sideStudy.controller.comment.CommentResponseDto;
 import jpa.sideStudy.domain.context.Context;
 import jpa.sideStudy.domain.context.ContextCategory;
+import jpa.sideStudy.domain.likes.Likes;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
@@ -22,6 +25,8 @@ public class ContextDetailDto {
     private String  writerEmail;
     private List<CommentResponseDto> comments;
 
+    private Set<Likes> likes = new HashSet<>();
+
     public ContextDetailDto(Context contexts){
         this.id = contexts.getId();
         this.title =contexts.getTitle();
@@ -34,6 +39,7 @@ public class ContextDetailDto {
         this.modifiedDate= contexts.getLastModifiedDate();
         this.writerEmail=contexts.getMember().getEmail();
         this.comments= contexts.getComments().stream().map(CommentResponseDto::new).collect(Collectors.toList());
+        this.likes = contexts.getLikes();
 
     }
 }

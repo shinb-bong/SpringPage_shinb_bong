@@ -4,12 +4,15 @@ import jpa.sideStudy.controller.context.ContextEditFormDto;
 import jpa.sideStudy.controller.context.ContextFormDto;
 import jpa.sideStudy.domain.base.BaseEntity;
 import jpa.sideStudy.domain.comment.Comment;
+import jpa.sideStudy.domain.likes.Likes;
 import jpa.sideStudy.domain.member.Member;
 import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -38,14 +41,14 @@ public class Context extends BaseEntity {
     @OrderBy("id asc") // 댓글 정렬
     private List<Comment> comments = new ArrayList<>() ;
 
+    /**
+     * 디테일에서 좋아요 노출수와 다른 곳에서 좋아요 노출을 위해
+     * 양방향 조회 설정
+     * 원래는 단방향 설정으로 설정하는 것이 좋음
+     */
+    @OneToMany(mappedBy = "context", cascade = CascadeType.ALL)
+    Set<Likes> likes = new HashSet<>();
 
-
-
-//    /**
-//     * 전체화면에서도 좋아요 수 노출을 위해
-//     */
-//    @OneToMany(mappedBy = "context",cascade = CascadeType.ALL)
-//    Set<Likes> likes = new HashSet<>();
 
     @Builder
     public Context(String title, String content, int viewCount, ContextCategory contextCategory, Member member,Long imgId) {

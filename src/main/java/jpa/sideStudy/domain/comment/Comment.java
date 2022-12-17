@@ -1,6 +1,5 @@
 package jpa.sideStudy.domain.comment;
 
-import jpa.sideStudy.domain.base.BaseEntity;
 import jpa.sideStudy.domain.context.Context;
 import jpa.sideStudy.domain.member.Member;
 import lombok.*;
@@ -8,7 +7,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
-
 @ToString
 @Builder
 @AllArgsConstructor

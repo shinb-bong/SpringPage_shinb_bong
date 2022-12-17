@@ -27,7 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
 
         http.authorizeRequests()
-                .mvcMatchers("/","/members/**","/contexts/**","/css/**","/assets/**","/api/context/**").permitAll() // 모두 처리
+                .mvcMatchers("/","/members/**","/contexts/**","/css/**","/assets/**","/api/context/**","/like/**").permitAll() // 모두 처리
                 .mvcMatchers("/admin/**").hasRole("ADMIN") // 어드민만
                 .anyRequest().authenticated();
 
