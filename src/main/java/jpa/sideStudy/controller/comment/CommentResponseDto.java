@@ -14,6 +14,7 @@ public class CommentResponseDto {
     private String createdDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
     private String modifiedDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
     private String writerName;
+    private String  writerEmail;
     private Long contextsId;
 
     /* Entity -> Dto */
@@ -24,5 +25,6 @@ public class CommentResponseDto {
         this.modifiedDate = comment.getModifiedDate();
         this.writerName = comment.getMember().getName();
         this.contextsId = comment.getContexts().getId();
+        this.writerEmail=comment.getMember().getEmail();
     }
 }

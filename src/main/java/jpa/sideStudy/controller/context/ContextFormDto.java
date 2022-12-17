@@ -1,5 +1,6 @@
 package jpa.sideStudy.controller.context;
 
+import jpa.sideStudy.controller.comment.CommentResponseDto;
 import jpa.sideStudy.domain.context.Context;
 import jpa.sideStudy.domain.context.ContextCategory;
 import jpa.sideStudy.domain.member.Member;
@@ -23,4 +24,5 @@ public class ContextFormDto {
 
     private ContextCategory contextCategory;
     private Long imgId;
+
 }

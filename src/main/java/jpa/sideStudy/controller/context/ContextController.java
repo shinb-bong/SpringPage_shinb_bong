@@ -2,6 +2,7 @@ package jpa.sideStudy.controller.context;
 
 import jpa.sideStudy.config.AuthUser;
 import jpa.sideStudy.config.MemberAdapter;
+import jpa.sideStudy.controller.comment.CommentResponseDto;
 import jpa.sideStudy.domain.context.Context;
 import jpa.sideStudy.domain.file.FileEntity;
 import jpa.sideStudy.domain.member.Member;
@@ -139,11 +140,18 @@ public class ContextController {
      * 상세페이지
      */
     @GetMapping("/{id}")
-    public String detail(Model model, @PathVariable("id") Long id){
+    public String detail(Model model, @PathVariable("id") Long id,@AuthUser Member member){
         Context findContext = contextService.findOne(id);
+        ContextDetailDto dto = new ContextDetailDto(findContext);
+        List<CommentResponseDto> comments = dto.getComments();
+        if (comments != null && !comments.isEmpty()){
+            model.addAttribute("comments",comments);
+        }
+
+
         int newViewCount = findContext.getViewCount()+1;
         contextService.updateVisit(id,newViewCount);
-        model.addAttribute("findContext",findContext);
+        model.addAttribute("findContext",dto);
         return "contexts/detailForm";
     }
 

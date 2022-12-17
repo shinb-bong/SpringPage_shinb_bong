@@ -4,6 +4,59 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/mainLayout}">
 
+<head>
+    <meta name="_csrf" th:content="_csrf.token"/>
+    <meta name="_csrf_header" th:content="_csrf.headerName"/>
+</head>
+
+<th:block layout:fragment="script">
+
+    <script th:inline="javascript">
+        function commentSave(id) {
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
+            var url = "/api/contexts/" + id + "/comments";
+            console.log(url);
+            var paramData = {
+                contextId: id,
+                comment: $('#comment').val()
+            };
+            var param = JSON.stringify(paramData);
+
+            $.ajax({
+                url      : url,
+                type     : "POST",
+                contentType : "application/json",
+                data     : param,
+                beforeSend : function(xhr){
+                    /* 데이터를 전송하기 전에 헤더에 csrf값을 설정 */
+                    xhr.setRequestHeader(header, token);
+                },
+                dataType : "text",
+                cache   : false,
+                success  : function(result, status){
+                    // alert("댓글 작성완료");
+                    location.href='/contexts/' + paramData.contextId;
+                    alert("댓글 작성완료");
+                    $('#comment').val().remove();
+                },
+                error : function(jqXHR, status, error){
+                    if(jqXHR.status == '401'){
+                        alert('로그인 후 이용해주세요');
+                        location.href='/members/login';
+                    } else{
+                        // console.log(jqXHR);
+                        // console.log(jqXHR.status);
+                        // console.error(error);
+                        alert(jqXHR.responseText);
+                    }
+                }
+            });
+        }
+    </script>
+
+</th:block>
 <body>
 <div layout:fragment="content">
     <div>
@@ -17,22 +70,22 @@
                 <th>카테고리</th>
                 <th>작성일시</th>
                 <th>조회수</th>
-                <th th:if="${#authentication.name} == ${findContext.member.email}">수정/삭제</th>
+                <th th:if="${#authentication.name} == ${findContext.writerEmail}">수정/삭제</th>
             </tr>
             </thead>
 
             <tbody>
             <tr >
-                <td th:text="${findContext.id}"></td>
+                <td th:id="contextId" th:text="${findContext.id}"></td>
                 <td th:text="${findContext.title}"></td>
-                <td th:text="${findContext.member.name}"></td>
+                <td th:text="${findContext.writer}"></td>
                 <td th:text="${findContext.content}"></td>
                 <td th:text="${findContext.contextCategory}"></td>
                 <td th:text="${#temporals.format(findContext.createdDate, 'yyyy-MM-dd')}"></td>
                 <td th:text="${findContext.viewCount}"></td>
                 <td> <a th:href="@{/contexts/edit/{id}(id=${findContext.id})}">
                     <button type="button" class="btn btn-outline-dark"
-                            th:if="${#authentication.name} == ${findContext.member.email}"
+                            th:if="${#authentication.name} == ${findContext.writerEmail}"
                             onclick="location.href='/contexts/edit'">수정/삭제</button>
                 </a>
                 </td>
@@ -40,6 +93,41 @@
             </tbody>
         </table>
 
+<!--        댓글보여주기-->
+        <h3>Comment</h3>
+        <div class="card mt-3" th:each="comment : ${comments}">
+            <div class="card-header bi bi-chat-dots">
+                <span>
+                    <span style="font-size: medium" th:text="|작성자: ${comment.writerName}|">{{nickname}}</span>
+                    <span style="font-size: small" th:text="|작성일자: ${comment.createdDate}|">{{createdDate}}</span>
+                    <div th:if="${#authentication.name} == ${comment.writerEmail}" >
+                        <button class="badge bi bi-pencil-square"> 수정</button>
+                        <button class="badge bi bi-trash"> 삭제</button>
+                    </div>
+                </span>
+            </div>
+            <ul class="list-group-flush">
+                <li class="list-group-item">
+                    <div th:text="${comment.comment}">{{comment}}</div>
+                </li>
+            </ul>
+        </div>
+<!--        댓글작성-->
+        <div sec:authorize="isAnonymous()" class="card-body" style="font-size: small"><a href="/members/login">로그인</a>을 하시면 댓글을 등록할 수 있습니다.</div>
+        <div class="card" sec:authorize="isAuthenticated()">
+            <div class="card-header bi bi-chat-right-dots"> Write a Comment</div>
+            <form>
+                <input type="hidden" th:field="${findContext.id}">
+                <div class="card-body">
+                    <textarea id="comment" class="form-control" rows="4" placeholder="댓글을 입력하세요"></textarea>
+                </div>
+                <div class="card-footer">
+                    <div class="pb-5">
+                        <button type="button" id="btn-comment-save" class="btn btn-outline-primary bi bi-pencil-square float-right" th:value="${findContext.id}" onclick="commentSave(this.value)" >등록</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
