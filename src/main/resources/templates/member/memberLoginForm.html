@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/mainLayout}">
 
 <!-- 사용자 CSS 추가 -->
@@ -39,6 +40,13 @@
         <div style="text-align:center" class="py-3">
             <button type="submit" class="btn btn-outline-dark">로그인</button>
             <button type="button" class="btn btn-outline-dark" onclick="location.href='/members/new'">회원가입</button>
+            <div sec:authorize="isAuthenticated()">
+                Logged in as: <span id="user" th:text="${memberName}">None</span>
+                <a href="/logout" class="btn btn-info active" role="button">Logout</a>
+            </div>
+            <a sec:authorize="isAnonymous()" href="/oauth2/authorization/naver" class="btn btn-secondary active" role="button">Naver Login</a>
+            </body>
+
         </div>
 <!--        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">-->
     </form>

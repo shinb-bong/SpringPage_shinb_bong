@@ -68,6 +68,8 @@ public class ContextQueryRepository {
         }
         return null;
     }
+
+
     /**
      * 정렬할건지
      */
@@ -84,6 +86,8 @@ public class ContextQueryRepository {
                         return new OrderSpecifier(direction, context.viewCount);
                     case "createdDate":
                         return new OrderSpecifier(direction, context.createdDate);
+                    case  "likesCount":
+                        return new OrderSpecifier<>(direction,context.likes.size());
                 }
             }
         }

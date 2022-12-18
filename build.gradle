@@ -40,6 +40,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 
+	//Oauth2
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
 	compile "org.springframework.boot:spring-boot-devtools"
 
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'// thymeleaf layout dialect

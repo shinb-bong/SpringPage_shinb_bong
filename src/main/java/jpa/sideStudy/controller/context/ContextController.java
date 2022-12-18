@@ -52,7 +52,7 @@ public class ContextController {
      */
     @GetMapping()
     public String contextList(@PageableDefault Pageable pageable,
-                                  @ModelAttribute("contextSearchDto") ContextSearchDto contextSearchDto,
+                              @ModelAttribute("contextSearchDto") ContextSearchDto contextSearchDto,
                               @RequestParam(required = false, defaultValue = "createdDate", name = "orderby") String orderCriteria,
                               Model model){
         Page<Context> findContext = contextService.findAll(contextSearchDto, pageable, orderCriteria);
@@ -100,7 +100,7 @@ public class ContextController {
     }
 
     /**
-     * 글 수정
+     * 글 수정 페이지 보여주기
      */
     @PostAuthorize("isAuthenticated() and ((returnObject.name ==  principal.username )or hasRole('ROLE_ADMIN'))")
     @GetMapping("/edit/{id}")
@@ -119,6 +119,9 @@ public class ContextController {
         return "contexts/contextEditForm";
     }
 
+    /**
+     * 글 수정
+     */
     @PreAuthorize("isAuthenticated() and (( #context.member.name == principal.name ) or hasRole('ROLE_ADMIN') )")
     @PostMapping("/edit/{id}")
     public String edit(@Valid ContextEditFormDto contextEditFormDto,
@@ -201,9 +204,6 @@ public class ContextController {
     @GetMapping("/myList")
     public String myContext(Model model,@AuthUser Member member){
         List<Context> myList = contextService.findMyList(member);
-//        for (Context context : myList) {
-//            contextForm()
-//        }
         model.addAttribute("id",member.getEmail());
         model.addAttribute("myList",myList);
         return "contexts/myListForm";

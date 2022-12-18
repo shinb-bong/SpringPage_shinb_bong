@@ -38,7 +38,7 @@
           <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">내 정보</button>
             <ul class="dropdown-menu">
-                <li><p class="dropdown-item" th:text="|${#authentication.name}로 로그인하셨습니다.|">로그아웃</p></li>
+                <li><p class="dropdown-item" th:text="|${#session.getAttribute('member').email}로 로그인하셨습니다.|">로그아웃</p></li>
                 <hr/>
                 <li><a class="dropdown-item" href="/members/logout">로그아웃</a></li>
             </ul>

@@ -46,7 +46,8 @@
                     <input type="text" th:field="*{findText}" class="form-control" placeholder="찾을 단어 입력"/>
                 </div>
                 <button type="submit" class="btn btn-primary mb-3 m-2">검색</button>
-                <a class="btn btn-primary mb-2" th:href="@{/contexts(cond=${param.cond}, contextCategory=${param.contextCategory}, findText=${param.findText}, orderby = 'viewCount' )}">조회수 순</a>
+                <a class="btn btn-primary mb-2" th:href="@{/contexts(cond=${param.cond}, contextCategory=${param.contextCategory}, findText=${param.findText}, orderby = 'viewCount', page=${param.page} )}">조회수 순</a>
+                <a class="btn btn-primary mb-2 ml-2" th:href="@{/contexts(cond=${param.cond}, contextCategory=${param.contextCategory}, findText=${param.findText}, orderby = 'likesCount' ,page=${param.page})}">좋아요 순</a>
                 <div style="text-align:center" class="mx-sm-1 mb-2">
                     <button type="button" class="btn btn-outline-dark"
                             sec:authorize="isAuthenticated()"
@@ -59,7 +60,7 @@
         <div class="row">
             <div th:each="context : ${contextList}" class="mt-5 col-sm">
                 <div class="card" style="width: 18rem;">
-                    <a class="badge badge-secondary" th:text="|${context.contextCategory} / 조회수: ${context.viewCount}|">New</a>
+                    <a class="badge badge-secondary" th:text="|${context.contextCategory} / 조회수: ${context.viewCount} 좋아요: ${context.likes.size()}|">New</a>
                     <img class="card-img-top" src="..." alt="Card image cap" th:if="${context.imgId} != null"
                          th:src="|/contexts/images/${context.imgId}|" width="150" height="150">
                     <div class="card-body">

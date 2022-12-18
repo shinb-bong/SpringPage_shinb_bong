@@ -3,6 +3,7 @@ package jpa.sideStudy.domain.member;
 import jpa.sideStudy.controller.member.MemberFormDto;
 import jpa.sideStudy.domain.base.BaseTimeEntity;
 import lombok.*;
+import org.apache.catalina.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
@@ -58,6 +59,12 @@ public class Member extends BaseTimeEntity {
     }
 
 
+    public Member update(String name, Gender gender) {
+        this.name = name;
+        this.gender = gender;
+
+        return this;
+    }
 
 
     //=== 편의 메소드

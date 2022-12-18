@@ -1,24 +1,35 @@
 package jpa.sideStudy.service.member;
 
 import jpa.sideStudy.config.MemberAdapter;
+import jpa.sideStudy.controller.member.naver.SessionUser;
 import jpa.sideStudy.domain.member.Member;
 import jpa.sideStudy.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import javax.servlet.http.HttpSession;
+import java.util.Collections;
 
 @Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
-public class MemberService implements UserDetailsService {
+@Slf4j
+public class MemberService implements UserDetailsService, OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     private final MemberRepository memberRepository;
+
+    private final HttpSession httpSession;
 
     /**
      * 회원가입
@@ -60,6 +71,42 @@ public class MemberService implements UserDetailsService {
         if(member == null){
             throw new UsernameNotFoundException(email);
         }
+        httpSession.setAttribute("member", new SessionUser(member.getEmail(), member.getName(), member.getGender()));
         return new MemberAdapter(member);
+    }
+
+    /**
+     * 네이버
+     */
+    @Transactional
+    @Override
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
+        OAuth2User oAuth2User = delegate.loadUser(userRequest);
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
+                .getUserInfoEndpoint().getUserNameAttributeName();
+
+        //네이버와 카카오를 구분
+        OAuthAttributes attributes = OAuthAttributes.of(registrationId,userNameAttributeName,oAuth2User.getAttributes());
+        Member member = saveOrUpdate(attributes);
+        httpSession.setAttribute("member", new SessionUser(member.getEmail(), member.getName(), member.getGender()));
+
+        return new DefaultOAuth2User(
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
+                attributes.getAttributes(),
+                attributes.getNameAttributeKey()
+                );
+    }
+
+    private Member saveOrUpdate(OAuthAttributes attributes) {
+         Member member = memberRepository.findByEmail(attributes.getEmail());
+         if(member == null){
+             member = attributes.toEntity();
+             return memberRepository.save(member);
+         } else {
+             return member;
+         }
+
     }
 }
