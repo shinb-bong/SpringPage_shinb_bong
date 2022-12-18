@@ -25,7 +25,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
-
         http.authorizeRequests()
                 .mvcMatchers("/","/members/**","/contexts/**","/css/**","/assets/**","/api/context/**","/like/**").permitAll() // 모두 처리
                 .mvcMatchers("/admin/**").hasRole("ADMIN") // 어드민만
